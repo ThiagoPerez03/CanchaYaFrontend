@@ -3,6 +3,7 @@ import { mockSolicitudes, mockComplejosAprobados } from '../data/solicitudes.js'
 import SolicitudDetalle from '../components/SolicitudDetalle.jsx';
 import ListaSolicitudes from '../components/ListaSolicitudes.jsx';
 import ComplejosAprobadosLista from '../components/ComplejosAprobadosLista.jsx'; 
+import GestionDeportes from '../components/GestionDeportes.jsx';
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState('solicitudes');
@@ -65,6 +66,13 @@ function AdminPage() {
           >
             Complejos Aprobados
           </button>
+          <button onClick={() => setActiveTab('deportes')} className={`px-3 py-2 font-medium text-sm rounded-md ${
+              activeTab === 'deportes'
+                ? 'bg-secondary text-light'
+                : 'text-secondary hover:text-gray-700'
+            }`}>
+              Deportes
+            </button>
         </nav>
       </div>
       <div>
@@ -89,6 +97,11 @@ function AdminPage() {
             onRemove={handleRemoveApproved}
           />
         )}
+
+        {activeTab === 'deportes' && (
+          <GestionDeportes />
+        )}
+        
       </div>
     </div>
   );
