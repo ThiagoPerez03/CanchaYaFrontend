@@ -8,11 +8,12 @@ function CalendarioTurnos({ turnosDisponibles, onConfirmarReserva }) {
   const [turnoSeleccionado, setTurnoSeleccionado] = useState(null);
   const [reservaConfirmada, setReservaConfirmada] = useState(false);
 
-  const handleSelectTurno = (dia, hora) => {
+  const handleSelectTurno = (dia, hora, precio) => {
+    const turnoActual = { dia, hora, precio };
     if (turnoSeleccionado?.dia === dia && turnoSeleccionado?.hora === hora) {
       setTurnoSeleccionado(null);
     } else {
-      setTurnoSeleccionado({ dia, hora });
+      setTurnoSeleccionado(turnoActual);
       setReservaConfirmada(false);
     }
   };
@@ -28,43 +29,47 @@ function CalendarioTurnos({ turnosDisponibles, onConfirmarReserva }) {
     }
   };
 
-  const getEstadoTurno = (dia, hora) => {
-    const turno = turnosDisponibles.find(t => t.dia.toUpperCase() === dia && t.hora === hora);
-    return turno ? turno.estado : 'no-disponible';
+  const getTurno = (dia, hora) => {
+    return turnosDisponibles.find(t => t.dia.toUpperCase() === dia && t.hora === hora);
   };
-
+  
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold mb-4 text-center text-primary">Turnos Disponibles</h3>
-      <div className="overflow-x-auto pb-4">
-        <div className="grid grid-cols-8 gap-1 text-center font-semibold min-w-[800px]">
-          <div></div>
-          {dias.map(dia => <div key={dia} className="py-2 text-gray-700 text-sm md:text-base">{dia}</div>)}
+    <div className='mt-8'>
+      <h2 className='text-2xl font-bold text-center text-primary mb-6'>Turnos Disponibles</h2>
+      <div className="overflow-x-auto">
+        <div className="grid grid-cols-8 gap-1 min-w-[800px]">
+          <div className=""></div>
+          {dias.map(dia => (
+            <div key={dia} className="text-center font-bold text-primary py-2">{dia.substring(0, 3)}</div>
+          ))}
+
           {horas.map(hora => (
             <React.Fragment key={hora}>
-              <div className="py-3 px-1 text-gray-600 font-bold">{hora}</div>
+              <div className="font-bold text-primary text-center py-2">{hora}</div>
               {dias.map(dia => {
-                const estado = getEstadoTurno(dia, hora);
-                const estaSeleccionado = turnoSeleccionado?.dia === dia && turnoSeleccionado?.hora === hora;
-                let clasesBoton = "w-full h-full py-3 rounded-md transition-colors duration-200 ";
-                if (estado === 'reservado') {
-                  clasesBoton += "bg-red-200 cursor-not-allowed opacity-50";
-                } else if (estado === 'disponible') {
-                  clasesBoton += "bg-accent hover:bg-secondary hover:text-white";
-                } else {
-                  clasesBoton += "bg-gray-200 cursor-not-allowed opacity-50";
-                }
-                if (estaSeleccionado) {
-                  clasesBoton += " ring-4 ring-offset-2 ring-primary bg-secondary";
-                }
+                const turno = getTurno(dia, hora);
+                const isSelected = turnoSeleccionado?.dia === dia && turnoSeleccionado?.hora === hora;
                 return (
-                  <div key={`${dia}-${hora}`} className="p-1">
-                    <button 
-                      className={clasesBoton}
-                      disabled={estado !== 'disponible'}
-                      onClick={() => handleSelectTurno(dia, hora)}
-                      aria-label={`Seleccionar turno ${dia} a las ${hora}`}
-                    />
+                  <div key={`${dia}-${hora}`} className="text-center py-1">
+                    {turno ? (
+                      <button
+                        // --- MODIFICACIÓN CLAVE: Se deshabilita el botón si el turno está reservado ---
+                        disabled={turno.estado === 'reservado'}
+                        onClick={() => handleSelectTurno(dia, hora, turno.precio)}
+                        className={`w-full h-10 rounded-md text-sm font-semibold transition-all ${
+                          // --- MODIFICACIÓN CLAVE: Lógica de clases para los colores ---
+                          turno.estado === 'reservado' 
+                            ? 'bg-red-200 cursor-not-allowed' // Color para turnos reservados
+                            : isSelected 
+                              ? 'bg-secondary text-light scale-110 shadow-lg' // Color para el turno seleccionado
+                              : 'bg-accent text-secondary hover:bg-secondary hover:text-light' // Color para turnos disponibles
+                        }`}
+                      >
+                        {isSelected ? '✓' : `$${(turno.precio / 1000).toFixed(0)}k`}
+                      </button>
+                    ) : (
+                      <div className="w-full h-10 rounded-md bg-gray-100"></div>
+                    )}
                   </div>
                 );
               })}
@@ -86,9 +91,12 @@ function CalendarioTurnos({ turnosDisponibles, onConfirmarReserva }) {
         ) : (
           <>
             {turnoSeleccionado && (
-                <p className="mb-4 text-lg text-primary">
-                    Turno seleccionado: <strong>{turnoSeleccionado.dia} a las {turnoSeleccionado.hora} hs</strong>
-                </p>
+                <div className="mb-4 text-lg text-primary animate-fade-in">
+                    <p>Turno seleccionado: <strong>{turnoSeleccionado.dia} a las {turnoSeleccionado.hora} hs</strong></p>
+                    <p className="font-bold text-2xl text-secondary mt-1">
+                        Precio: ${turnoSeleccionado.precio.toLocaleString('es-AR')}
+                    </p>
+                </div>
             )}
             <button 
                 onClick={handleConfirmarClick}

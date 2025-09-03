@@ -14,9 +14,9 @@ function App() {
     <BrowserRouter>
       
         <Routes>
-          <Route path="/login" element={<LogInPage />} />
-          <Route path="/registro" element={<SignUpPage />} />
           <Route element={<Layout />}>
+            <Route path="/login" element={<LogInPage />} />
+            <Route path="/registro" element={<SignUpPage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/reserva/:canchaId" element={<ReservaPage />} />
             <Route path="/admin" element={<AdminPage />} /> {/* Habria que Verificar esta Ruta */}
@@ -33,3 +33,4 @@ function App() {
 }
 
 export default App;
+
